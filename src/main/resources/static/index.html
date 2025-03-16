@@ -1,0 +1,77 @@
+<html>
+<head>
+    <title>A Simple SPA For Tasks</title>
+    <script type="application/javascript">
+        function pushMessage() {
+            return fetch("/messages/foo/group1", {
+                method: "POST",
+                body: JSON.stringify({
+                id: "123",
+                message: "Fix my bugs"
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+            });
+        }
+
+        function fetchAndDisplayTasks() {
+            fetchTask()
+                .then(task => displayTask(task))
+        }
+
+        function fetchTask() {
+            return fetch(
+                "/messages/foo/group1",
+                {
+                    headers: { 'Accept': 'application/json' }
+                }
+            ).then(resp => resp.json());
+        }
+
+        function displayTask(task) {
+            const tasksTableBody = document.getElementById("tasksTableBody")
+            const newRow = taskRow(task);
+            tasksTableBody.appendChild(newRow);
+        }
+
+        function taskRow(task) {
+            return tr([
+                td(task.id),
+                td(task.message)
+            ]);
+        }
+
+        function tr(children) {
+            const node = document.createElement("tr");
+            children.forEach(child => node.appendChild(child));
+            return node;
+        }
+
+        function td(text) {
+            const node = document.createElement("td");
+            node.appendChild(document.createTextNode(text));
+            return node;
+        }
+    </script>
+</head>
+<body>
+<h1>Viewing Tasks Via JS</h1>
+<form action="javascript:fetchAndDisplayTasks()">
+    <input type="submit" value="View The Tasks">
+</form>
+<form action="javascript:pushMessage()">
+    <input type="submit" value="SendMessage">
+</form>
+<table>
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>message</th>
+    </tr>
+    </thead>
+    <tbody id="tasksTableBody">
+    </tbody>
+</table>
+</body>
+</html>
