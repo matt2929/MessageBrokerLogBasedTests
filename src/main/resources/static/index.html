@@ -2,13 +2,30 @@
 <head>
     <title>A Simple SPA For Tasks</title>
     <script type="application/javascript">
+
+        function updateMessageToSend() {
+            id_element = document.getElementById("idField")
+            message_element = document.getElementById("messageField")
+            payload = JSON.stringify({
+                id: id_element.value,
+                message: message_element.value
+            })
+            displaySendMsgDiv = document.getElementById("displaySendMsg")
+            displaySendMsgDiv.innerHTML = payload
+        }
+
         function pushMessage() {
+            id_element = document.getElementById("idField")
+            message_element = document.getElementById("messageField")
+            payload = JSON.stringify({
+                id: id_element.value,
+                message: message_element.value
+            })
+            displaySendMsgDiv = document.getElementById("displaySendMsg")
+            displaySendMsgDiv.innerHTML = payload
             return fetch("/messages/foo/group1", {
                 method: "POST",
-                body: JSON.stringify({
-                id: "123",
-                message: "Fix my bugs"
-            }),
+                body: payload,
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -56,12 +73,17 @@
     </script>
 </head>
 <body>
-<h1>Viewing Tasks Via JS</h1>
-<form action="javascript:fetchAndDisplayTasks()">
-    <input type="submit" value="View The Tasks">
-</form>
-<form action="javascript:pushMessage()">
+<h1>Push and Poll Queue</h1>
+<form onSubmit="javascript:pushMessage()">
+    <label for="idField">Your ID: </label>
+    <input id="idField" type="text" value="id" oninput="updateMessageToSend()"><br>
+    <label for="messageField">Message: </label>
+    <input id="messageField" type="text" value="message" oninput="updateMessageToSend()"><br><br>
     <input type="submit" value="SendMessage">
+</form>
+<div id="displaySendMsg"></div>
+<form action="javascript:fetchAndDisplayTasks()">
+    <input type="submit" value="Poll Message">
 </form>
 <table>
     <thead>
@@ -73,5 +95,6 @@
     <tbody id="tasksTableBody">
     </tbody>
 </table>
+
 </body>
 </html>

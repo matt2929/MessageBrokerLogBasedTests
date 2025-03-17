@@ -16,16 +16,15 @@ class MessageBrokerBuffer(
     var offset = 0L
     val file = File(topic)
     val raf = RandomAccessFile(file, "rw")
-    val counter = AtomicInteger()
 
     @OptIn(InternalAPI::class)
     fun appendToTopicFile(payload: Message) {
         lock.withLock {
+            val jsonPayload = Json.encodeToString(payload)
+            println("saving payload json $jsonPayload")
             raf.seek(raf.length())
-            raf.writeUTF(Json.encodeToString(payload))
+            raf.writeUTF(jsonPayload)
             raf.channel.force(true)
-            val queueSize = counter.incrementAndGet()
-            println("Queue Size $queueSize")
         }
     }
 
@@ -36,13 +35,10 @@ class MessageBrokerBuffer(
         raf.seek(offset)
         var message: Message? = null
         try {
-            val messageStr = raf.readUTF()
-            val queueSize = counter.decrementAndGet()
+            message = Json.decodeFromString<Message>(raf.readUTF())
             offset = raf.filePointer
-            println("Queue Size $queueSize")
-            message = Json.decodeFromString<Message>(messageStr)
-        } catch (_: Exception) {
-
+        } catch (e: Exception) {
+            println("Failure to poll message $e")
         }
         println("Polled $message")
         return message

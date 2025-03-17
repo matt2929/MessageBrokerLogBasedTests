@@ -28,8 +28,7 @@ fun Application.configureRouting() {
                     val group = call.parameters["group"]!!
                     val id = call.parameters["id"]!!
                     val mbb = MessageBrokerBuffer(group, lock)
-                    val message = call.receive<Message>()
-                    mbb.appendToTopicFile(message)
+                    mbb.appendToTopicFile(call.receive<Message>())
                     call.respond(HttpStatusCode.Created)
                 } catch (ex: IllegalStateException) {
                     call.respond(HttpStatusCode.BadRequest)
